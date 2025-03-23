@@ -9,55 +9,50 @@ import SwiftUI
 
 
 struct EmojiMemoryGameView: View {
+    typealias Card = MemoryGame<String>.Card
     @ObservedObject var viewModel: EmojiMemoryGame
+    
+    private let aspectRation: CGFloat = 2/3
+    private let spacing: CGFloat = 4
     
     var body: some View {
         VStack {
-            ScrollView {
-                cards
+            cards
+                .foregroundColor(.orange)
+            HStack {
+                Text("Score: \(viewModel.score)")
+                    .animation(nil)
+                Spacer()
+                Button("Shuffle") {
+                    withAnimation {
+                        viewModel.shuffle()
+                    }
+                }
             }
-            Button("Shuffle") {
-                viewModel.shuffle()
-            }
+            .font(.largeTitle)
         }
         .padding()
     }
     
-    var cards: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 0)], spacing: 0) {
-            ForEach(viewModel.cards.indices, id: \.self) { index in
-                CardView(viewModel.cards[index])
-                    .aspectRatio(2/3, contentMode: .fit)
-                    .padding(4)
-            }
+    private var cards: some View {
+        AspectVGrid(viewModel.cards, aspectRatio: aspectRation) { card in
+            CardView(card)
+                .padding(spacing)
+                .overlay(FlyingNumber(number: scoreChange(causedBy: card)))
+                .onTapGesture {
+                    withAnimation{
+                        viewModel.choose(card)
+                    }
+                }
         }
-        .foregroundColor(.orange)
+    }
+
+    
+    private func scoreChange(causedBy card: Card) -> Int {
+        return 0
     }
 }
 
-
-struct CardView: View {
-    let card: MemoryGame<String>.Card
-    init(_ card: MemoryGame<String>.Card) {
-        self.card = card
-    }
-    var body: some View {
-        ZStack {
-            let cardBase = RoundedRectangle(cornerRadius: 13)
-            Group {
-                cardBase.fill(.white)
-                cardBase.strokeBorder(lineWidth: 2)
-                Text(card.content)
-                    .font(.system(size: 200))
-                    .minimumScaleFactor(0.01)
-                    .aspectRatio(1, contentMode: .fit)
-            }
-                .opacity(card.isFaceUp ? 1 : 0)
-            cardBase.fill()
-                .opacity(card.isFaceUp ? 0 : 1)
-        }
-    }
-}
 
 
 #Preview {

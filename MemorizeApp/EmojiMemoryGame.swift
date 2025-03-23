@@ -21,19 +21,23 @@ class EmojiMemoryGame: ObservableObject {
        }
     }
     
-    @Published private var model = createMemoryGame(numberOfPairsOfCards: 8)
+    @Published private var gameModel = createMemoryGame(numberOfPairsOfCards: 8)
     
     var cards: [MemoryGame<String>.Card] {
-        model.cards
+        gameModel.cards
+    }
+    
+    var score: Int {
+        gameModel.score
     }
     
     // MARK: - Intents
     
     func shuffle() {
-        model.shuffle()
+        gameModel.shuffle()
     }
     
     func choose(_ card: MemoryGame<String>.Card) {
-        model.choose(card)
+        gameModel.choose(card)
     }
 }
